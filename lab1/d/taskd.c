@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <time.h>
+#include <unistd.h>
 #define N 100
 
 void get_cpu_model();
@@ -11,9 +12,11 @@ void get_uptime();
 void get_hostname();
 void get_time();
 void get_cpu_user();
+void get_meminfo();
+void get_loadavg(int,int);
 
 int main(){
-    printf("*****operating system lab1-C*****\n*****15080120guoduhao*****\n\n");
+    printf("*****operating system lab1-D*****\n*****15080120guoduhao*****\n\n");
     get_time();
     get_hostname();
     get_cpu_model();
@@ -23,18 +26,44 @@ int main(){
     get_uptime();
     printf("***************\n");
     get_cpu_user();
+    printf("***************\n");
+    get_meminfo();
+    int interval,duration;
+    printf("input interval(ms):");
+    scanf("%d",&interval);
+    printf("input duration(ms):");
+    scanf("%d",&duration);
+    get_loadavg(interval,duration);
     return 0;
 }
 
-char* to_seconds(char str[]){
+void get_loadavg(int interval, int duration){
+    int times = duration/interval;
     int i;
-    for(i=0;;i++){
-        if(str[i] == '\0'){
-            break;
-        }
+    for(i=0;i<times;i++){
+    FILE *fp;
+    char str[N+1];
+    if( (fp=fopen("/proc/loadavg","rt")) == NULL ){
+        printf("Cannot open file, press any key to exit!\n");
+	return;
     }
-    str[i-2] = '\0';
-    return str;
+    fgets(str, N, fp);
+    printf("Machine load:%s",str);
+    usleep(interval*1000);
+    }
+}
+
+void get_meminfo(){
+    FILE *fp;
+    char str[N+1];
+    if( (fp=fopen("/proc/meminfo","rt")) == NULL ){
+        printf("Cannot open file, press any key to exit!\n");
+	return;
+    }
+    fgets(str, N, fp);
+    printf("%s",str);
+    fgets(str, N, fp);
+    printf("%s",str);
 }
 
 void get_cpu_user(){
@@ -47,10 +76,10 @@ void get_cpu_user(){
     fgets(str, N, fp);
     char *delim = " ";
     strtok(str, delim);
-    printf("CPU in user mode(seconds):\t%s\n", to_seconds(strtok(NULL, delim)));
+    printf("CPU in user mode:\t%s\n", strtok(NULL, delim));
     strtok(NULL, delim);
-    printf("CPU in system mode(seconds):\t%s\n", to_seconds(strtok(NULL, delim)));
-    printf("CPU in idle mode(seconds):\t%s\n\n", to_seconds(strtok(NULL, delim)));
+    printf("CPU in system mode:\t%s\n", strtok(NULL, delim));
+    printf("CPU in idle mode:\t%s\n\n", strtok(NULL, delim));
     
     int i;
     for(i=0;i<8;i++){
