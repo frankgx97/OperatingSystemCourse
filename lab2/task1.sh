@@ -6,7 +6,7 @@ then
     exit 1
 fi
 
-process_no=`ps -ef |grep $1 |grep -v "grep" |grep -v $0 |wc -l`
+process_no=`ps aux |grep $1 |grep -v "grep" |grep -v $0 |wc -l`
 if [ $process_no -eq 0 ];
 then
     echo $(date)
